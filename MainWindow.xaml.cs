@@ -90,6 +90,15 @@ namespace WindowsToolsLauncher
                 ("System Restore",       "rstrui.exe"),
                 ("Narrator",             "narrator.exe"),
                 ("Temp Folder",          Environment.GetEnvironmentVariable("TEMP")),
+                
+                ("Disk Defragmenter",      "dfrgui.exe"),
+                
+                
+                ("User Accounts",           "netplwiz.exe"),
+                ("Create Restore Point",        "SystemPropertiesProtection.exe"),
+                ("Create EXE from File", "iexpress.exe")
+                
+                
             };
 
             foreach (var (name, command) in tools)
@@ -110,11 +119,12 @@ namespace WindowsToolsLauncher
                     BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
                     BorderThickness = new Thickness(1),
                     Cursor = System.Windows.Input.Cursors.Hand,
-                    ToolTip = $"Launch {name}"
+                    ToolTip = $"{name}"
+                   
                 };
-
+                
                 btn.MouseEnter += (s, e) =>
-                    btn.Background = new SolidColorBrush(Color.FromRgb(90, 90, 90));
+                    btn.Background = new SolidColorBrush(Color.FromRgb(200, 200, 200));
                 btn.MouseLeave += (s, e) =>
                     btn.Background = new SolidColorBrush(Color.FromRgb(64, 64, 64));
 

@@ -8,7 +8,7 @@ using System.Windows;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("Windows Tools")]
-[assembly: AssemblyDescription("A bunch of native windows tools in one place")]
+[assembly: AssemblyDescription("A bunch of windows tools in one place")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("FreshLabs Interactive")]
 [assembly: AssemblyProduct("Windows Tools")]
@@ -48,6 +48,6 @@ using System.Windows;
 //      Build Number
 //      Revision
 //
-[assembly: AssemblyVersion("2.0.0.0")]
-[assembly: AssemblyFileVersion("2.0.0.0")]
+[assembly: AssemblyVersion("2.0.2.0")]
+[assembly: AssemblyFileVersion("2.0.2.0")]
 [assembly: NeutralResourcesLanguage("en-US")]

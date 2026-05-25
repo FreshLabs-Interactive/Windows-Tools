@@ -21,9 +21,12 @@ namespace WindowsToolsLauncher
             "rstrui.exe"       // System Restore – often 64‑bit only
         };
 
+        private List<CustomTool> customTools;
+
         public MainWindow()
         {
             InitializeComponent();
+            customTools = CustomToolsManager.Load();
             PopulateToolButtons();
         }
 
@@ -60,7 +63,8 @@ namespace WindowsToolsLauncher
 
         private void PopulateToolButtons()
         {
-            var tools = new (string Name, string Command)[]
+            ToolsWrapPanel.Children.Clear();
+            var defaultTools = new (string Name, string Command)[]
             {
                 ("Character Map",        "charmap"),
                 ("Control Panel",        "control"),
@@ -79,7 +83,7 @@ namespace WindowsToolsLauncher
                 ("Disk Cleanup",         "cleanmgr.exe"),
                 ("Notepad",              "notepad"),
                 ("Calculator",           "calc"),
-                ("Paint",                "mspaint"),
+                ("Steps Recorder",       "psr.exe"),
                 ("Snipping Tool",        "snippingtool"),
                 ("Windows Features",     "optionalfeatures"),
                 ("System Configuration", "msconfig.exe"),   // ✅ now works
@@ -101,37 +105,50 @@ namespace WindowsToolsLauncher
                 
             };
 
-            foreach (var (name, command) in tools)
+            foreach (var (name, command) in defaultTools)
             {
-                // Resolve the correct command before storing it
                 string finalCommand = ResolveCommand(command);
-
-                var btn = new Button
-                {
-                    Content = name,
-                    Tag = finalCommand,
-                    Width = 150,
-                    Height = 40,
-                    Margin = new Thickness(5),
-                    FontSize = 13,
-                    Background = new SolidColorBrush(Color.FromRgb(64, 64, 64)),
-                    Foreground = Brushes.White,
-                    BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
-                    BorderThickness = new Thickness(1),
-                    Cursor = System.Windows.Input.Cursors.Hand,
-                    ToolTip = $"{name}"
-                   
-                };
-                
-                btn.MouseEnter += (s, e) =>
-                    btn.Background = new SolidColorBrush(Color.FromRgb(200, 200, 200));
-                btn.MouseLeave += (s, e) =>
-                    btn.Background = new SolidColorBrush(Color.FromRgb(64, 64, 64));
-
-                btn.Click += ToolButton_Click;
-
-                ToolsWrapPanel.Children.Add(btn);
+                AddButton(name, finalCommand, isCustom: false);
             }
+
+            // Custom tools from JSON (saved by user)
+            foreach (var tool in customTools)
+            {
+                string finalCommand = ResolveCommand(tool.Command);
+                AddButton(tool.Name, finalCommand, isCustom: true);
+            }
+        }
+        private void AddButton(string name, string command, bool isCustom)
+        {
+            var btn = new Button
+            {
+                Content = name,
+                Tag = command,
+                Width = 150,
+                Height = 40,
+                Margin = new Thickness(5),
+                FontSize = 13,
+                Background = isCustom
+                    ? new SolidColorBrush(Color.FromRgb(0, 120, 180))   // custom buttons have a blue tint
+                    : new SolidColorBrush(Color.FromRgb(64, 64, 64)),
+                Foreground = Brushes.White,
+                BorderBrush = new SolidColorBrush(Color.FromRgb(100, 100, 100)),
+                BorderThickness = new Thickness(1),
+                Cursor = System.Windows.Input.Cursors.Hand,
+                ToolTip = $"Launch {name}"
+            };
+
+            btn.MouseEnter += (s, e) =>
+                btn.Background = isCustom
+                    ? new SolidColorBrush(Color.FromRgb(0, 150, 220))
+                    : new SolidColorBrush(Color.FromRgb(90, 90, 90));
+            btn.MouseLeave += (s, e) =>
+                btn.Background = isCustom
+                    ? new SolidColorBrush(Color.FromRgb(0, 120, 180))
+                    : new SolidColorBrush(Color.FromRgb(64, 64, 64));
+
+            btn.Click += ToolButton_Click;
+            ToolsWrapPanel.Children.Add(btn);
         }
 
         private void ToolButton_Click(object sender, RoutedEventArgs e)
@@ -152,6 +169,21 @@ namespace WindowsToolsLauncher
                     MessageBox.Show($"Failed to launch '{btn.Content}'\nError: {ex.Message}",
                                     "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        private void ManageButton_Click(object sender, RoutedEventArgs e)
+        {
+            var manageWindow = new ManageButtonsWindow(customTools)
+            {
+                Owner = this
+            };
+
+            if (manageWindow.ShowDialog() == true)
+            {
+                customTools = manageWindow.CustomTools;
+                CustomToolsManager.Save(customTools);
+                PopulateToolButtons();   // refresh all buttons
             }
         }
     }
